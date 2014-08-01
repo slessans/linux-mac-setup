@@ -103,6 +103,17 @@ function set_prompt_symbol () {
   fi
 }
 
+# show when execution in python virtual env
+function set_virtual_env () {
+
+    if [ -n "$VIRTUAL_ENV" ] ; then
+        VENV="[`basename $VIRTUAL_ENV`]"
+    else
+        VENV=""
+    fi
+
+}
+
 # Set the full bash prompt.
 function set_bash_prompt () {
   # echo "set_bash_prompt"
@@ -117,9 +128,11 @@ function set_bash_prompt () {
     BRANCH=''
   fi
 
+  set_virtual_env
+
   # Fill spaces between the left and right halves
-  strippedbranch=`echo $BRANCH | sed 's|\\\\\\[[^]]*\\]||g'`  
-  lefthalf="[`whoami`:`pwd | sed "s|$HOME|~|"`]"
+  strippedbranch=`echo $BRANCH | sed 's|\\\\\\[[^]]*\\]||g'`
+  lefthalf="$VENV[`whoami`:`pwd | sed "s|$HOME|~|"`]"
   righthalf="$strippedbranch"
   let fillsize=${COLUMNS}-${#lefthalf}-${#righthalf}-1
   if [ "$fillsize" -gt "0" ]; then
@@ -130,7 +143,7 @@ function set_bash_prompt () {
   fi
 
   # Set the bash prompt variable.
-  PS1="\n[$FGGNBD\u:$RESET$FGGR\w]$fill$RESET ${BRANCH}$RESET\n${PROMPT_SYMBOL}  "
+  PS1="\n${FGBLBD}${VENV}${RESET}[$FGGNBD\u:$RESET$FGGR\w]$fill$RESET ${BRANCH}$RESET\n${PROMPT_SYMBOL}  "
 }
 
 # Tell bash to execute this function just before displaying its prompt.
