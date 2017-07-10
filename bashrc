@@ -1,3 +1,4 @@
+# get aliases and functions
 # Define colors
 # adapted by Scott Lessans from https://gist.github.com/skizzybiz/3789296
 #
@@ -41,7 +42,7 @@ function set_git_branch {
   git_status="$(git status 2> /dev/null)"
 
   # Set color based on clean/staged/dirty.
-  if [[ ${git_status} =~ "working directory clean" ]]; then
+  if [[ ${git_status} =~ "working tree clean" ]]; then
     state=$FGGNBD
   elif [[ ${git_status} =~ "Changes to be committed" ]]; then
     state=$FGYLBD
@@ -57,6 +58,10 @@ function set_git_branch {
 
   # Set arrow icon based on status against remote.
   remote_pattern="Your branch is (.*) of"
+  diverge_pattern="Your branch and (.*) have diverged"
+  branch_pattern="^On branch ([^${IFS}]*)"
+  detached_pattern="^HEAD detached at ([^${IFS}]*)"
+
   if [[ ${git_status} =~ ${remote_pattern} ]]; then
 
     direction=${BASH_REMATCH[1]}
@@ -74,18 +79,18 @@ function set_git_branch {
     else
       remote="(↓$amnt)"
     fi
+  elif [[ ${git_status} =~ ${diverge_pattern} ]]; then
+    remote="↕"
   else
     remote=""
   fi
-  diverge_pattern="Your branch and (.*) have diverged"
-  if [[ ${git_status} =~ ${diverge_pattern} ]]; then
-    remote="↕"
-  fi
 
-  # Get the name of the branch.
-  branch_pattern="^On branch ([^${IFS}]*)"
   if [[ ${git_status} =~ ${branch_pattern} ]]; then
     branch=${BASH_REMATCH[1]}
+  elif [[ ${git_status} =~ ${detached_pattern} ]]; then
+    branch="detached@${BASH_REMATCH[1]}"
+  else
+    branch=""
   fi
 
   # Set the final branch string.
